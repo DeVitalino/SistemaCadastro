@@ -16,6 +16,7 @@ public class UsuarioService {
 
     public List<Usuario> listarTodos() {
         return repository.findAll();
+
     }
 
     public Usuario cadastrar(Usuario usuario) {
