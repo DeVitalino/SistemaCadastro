@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Random;
+import java.util.Optional;
 
 @Service
 public class UsuarioService {
@@ -14,19 +14,43 @@ public class UsuarioService {
     @Autowired
     private UsuarioRepository repository;
 
-    private Random gerador = new Random();
-
     public List<Usuario> listarTodos() {
         return repository.findAll();
     }
 
     public Usuario cadastrar(Usuario usuario) {
-        int id = gerador.nextInt(900) + 100;
-        usuario.setId(id);
         return repository.save(usuario);
     }
 
-    public boolean remover(int id) {
-        return repository.deleteById(id);
+    public Usuario atualizar(Long id, Usuario dados) {
+        Optional<Usuario> usuarioOpt = repository.findById(id);
+
+        if (usuarioOpt.isPresent()) {
+            Usuario usuario = usuarioOpt.get();
+
+            if (dados.getNome() != null) {
+                usuario.setNome(dados.getNome());
+            }
+
+            if (dados.getEmail() != null) {
+                usuario.setEmail(dados.getEmail());
+            }
+
+            if (dados.getTelefone() != null) {
+                usuario.setTelefone(dados.getTelefone());
+            }
+
+            return repository.save(usuario);
+        }
+
+        return null;
+    }
+
+    public boolean remover(Long id) {
+        if (repository.existsById(id)) {
+            repository.deleteById(id);
+            return true;
+        }
+        return false;
     }
 }

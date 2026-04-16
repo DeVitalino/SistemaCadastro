@@ -27,10 +27,24 @@ public class UsuarioController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> remover(@PathVariable int id) {
+    public ResponseEntity<Void> remover(@PathVariable Long id) {
         if (service.remover(id)) {
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.notFound().build();
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Usuario> atualizar(@PathVariable long id, @RequestBody Usuario dadosAtualizados) {
+        Usuario usuarioAtualizado = service.atualizar(id, dadosAtualizados);
+
+        if (usuarioAtualizado != null) {
+            return ResponseEntity.ok(usuarioAtualizado);
+        }
+
+        return ResponseEntity.notFound().build();
+    }
 }
+/*
+Rota de ENDPOINTS
+ */

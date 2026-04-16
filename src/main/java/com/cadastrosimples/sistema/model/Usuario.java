@@ -1,25 +1,25 @@
 package com.cadastrosimples.sistema.model;
 
+import jakarta.persistence.*;
+
+@Entity
 public class Usuario {
-    private int id;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     private String nome;
     private String telefone;
     private String email;
 
     public Usuario() {}
 
-    public Usuario(int id, String nome, String telefone, String email) {
-        this.id = id;
-        this.nome = nome;
-        this.telefone = telefone;
-        this.email = email;
-    }
-
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

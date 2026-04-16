@@ -1,0 +1,5 @@
+com/cadastrosimples/sistema/service/UsuarioService.class
+com/cadastrosimples/sistema/model/Usuario.class
+com/cadastrosimples/sistema/repository/UsuarioRepository.class
+com/cadastrosimples/sistema/SistemaCadastroApplication.class
+com/cadastrosimples/sistema/controller/UsuarioController.class
