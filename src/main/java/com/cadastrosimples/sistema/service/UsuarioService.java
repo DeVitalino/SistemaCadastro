@@ -1,7 +1,9 @@
 package com.cadastrosimples.sistema.service;
 
 import com.cadastrosimples.sistema.model.Usuario;
+import com.cadastrosimples.sistema.model.Empresa;
 import com.cadastrosimples.sistema.repository.UsuarioRepository;
+import com.cadastrosimples.sistema.repository.EmpresaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,13 +16,26 @@ public class UsuarioService {
     @Autowired
     private UsuarioRepository repository;
 
+    @Autowired
+    private EmpresaRepository empresaRepository;
+
     public List<Usuario> listarTodos() {
         return repository.findAll();
-
     }
 
-    public Usuario cadastrar(Usuario usuario) {
-        return repository.save(usuario);
+    public List<Usuario> listarPorEmpresa(Long empresaId) {
+        return repository.findByEmpresaId(empresaId);
+    }
+
+    public Usuario cadastrar(Usuario usuario, Long empresaId) {
+        Optional<Empresa> empresaOpt = empresaRepository.findById(empresaId);
+
+        if (empresaOpt.isPresent()) {
+            usuario.setEmpresa(empresaOpt.get());
+            return repository.save(usuario);
+        }
+
+        return null;
     }
 
     public Usuario atualizar(Long id, Usuario dados) {
@@ -39,6 +54,11 @@ public class UsuarioService {
 
             if (dados.getTelefone() != null) {
                 usuario.setTelefone(dados.getTelefone());
+            }
+
+            if (dados.getEmpresa() != null && dados.getEmpresa().getId() != null) {
+                Optional<Empresa> empresaOpt = empresaRepository.findById(dados.getEmpresa().getId());
+                empresaOpt.ifPresent(usuario::setEmpresa);
             }
 
             return repository.save(usuario);

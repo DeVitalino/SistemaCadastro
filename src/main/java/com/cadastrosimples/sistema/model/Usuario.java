@@ -1,6 +1,7 @@
 package com.cadastrosimples.sistema.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class Usuario {
@@ -12,6 +13,11 @@ public class Usuario {
     private String nome;
     private String telefone;
     private String email;
+
+    @ManyToOne
+    @JoinColumn(name = "empresa_id")
+    @JsonIgnore
+    private Empresa empresa;
 
     public Usuario() {}
 
@@ -45,5 +51,13 @@ public class Usuario {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public Empresa getEmpresa() {
+        return empresa;
+    }
+
+    public void setEmpresa(Empresa empresa) {
+        this.empresa = empresa;
     }
 }
