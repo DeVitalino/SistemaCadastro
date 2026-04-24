@@ -1,6 +1,7 @@
 package com.cadastrosimples.sistema.model;
 
 import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
 public class Empresa {
@@ -11,6 +12,9 @@ public class Empresa {
 
     private String nome;
     private String cnpj;
+
+    @OneToMany(mappedBy = "empresa", cascade = CascadeType.ALL)
+    private List<Usuario> usuarios;
 
     public Empresa() {}
 
@@ -32,5 +36,13 @@ public class Empresa {
 
     public void setCnpj(String cnpj) {
         this.cnpj = cnpj;
+    }
+
+    public List<Usuario> getUsuarios() {
+        return usuarios;
+    }
+
+    public void setUsuarios(List<Usuario> usuarios) {
+        this.usuarios = usuarios;
     }
 }

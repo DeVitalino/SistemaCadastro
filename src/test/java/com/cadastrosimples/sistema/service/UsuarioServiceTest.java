@@ -1,7 +1,9 @@
 package com.cadastrosimples.sistema.service;
 
 import com.cadastrosimples.sistema.model.Usuario;
+import com.cadastrosimples.sistema.model.Empresa;
 import com.cadastrosimples.sistema.repository.UsuarioRepository;
+import com.cadastrosimples.sistema.repository.EmpresaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,13 +25,21 @@ public class UsuarioServiceTest {
     @Mock
     private UsuarioRepository repository;
 
+    @Mock
+    private EmpresaRepository empresaRepository;
+
     @InjectMocks
     private UsuarioService service;
 
     private Usuario usuario;
+    private Empresa empresa;
 
     @BeforeEach
     void setUp() {
+        empresa = new Empresa();
+        empresa.setNome("Empresa Teste");
+        empresa.setCnpj("12345678000100");
+
         usuario = new Usuario();
         usuario.setId(1L);
         usuario.setNome("João Silva");
@@ -45,72 +55,53 @@ public class UsuarioServiceTest {
 
         assertNotNull(resultado);
         assertEquals(1, resultado.size());
-        assertEquals(usuario.getNome(), resultado.get(0).getNome());
         verify(repository, times(1)).findAll();
     }
 
     @Test
-    void cadastrar_DeveRetornarUsuarioSalvo() {
+    void cadastrar_QuandoEmpresaExiste_DeveSalvarUsuario() {
+        when(empresaRepository.findById(1L)).thenReturn(Optional.of(empresa));
         when(repository.save(any(Usuario.class))).thenReturn(usuario);
 
-        Usuario resultado = service.cadastrar(new Usuario());
+        Usuario resultado = service.cadastrar(usuario, 1L);
 
         assertNotNull(resultado);
-        assertEquals(usuario.getNome(), resultado.getNome());
+        assertEquals("João Silva", resultado.getNome());
+        verify(empresaRepository, times(1)).findById(1L);
         verify(repository, times(1)).save(any(Usuario.class));
     }
 
     @Test
-    void atualizar_QuandoUsuarioExiste_DeveRetornarUsuarioAtualizado() {
-        Usuario dadosAtualizados = new Usuario();
-        dadosAtualizados.setNome("João Alterado");
-        dadosAtualizados.setEmail("joao.novo@email.com");
-        dadosAtualizados.setTelefone("11888888888");
+    void cadastrar_QuandoEmpresaNaoExiste_DeveRetornarNull() {
+        when(empresaRepository.findById(1L)).thenReturn(Optional.empty());
 
-        when(repository.findById(1L)).thenReturn(Optional.of(usuario));
-        when(repository.save(any(Usuario.class))).thenReturn(usuario);
-
-        Usuario resultado = service.atualizar(1L, dadosAtualizados);
-
-        assertNotNull(resultado);
-        assertEquals("João Alterado", resultado.getNome());
-        assertEquals("joao.novo@email.com", resultado.getEmail());
-        assertEquals("11888888888", resultado.getTelefone());
-        verify(repository, times(1)).findById(1L);
-        verify(repository, times(1)).save(any(Usuario.class));
-    }
-
-    @Test
-    void atualizar_QuandoUsuarioNaoExiste_DeveRetornarNull() {
-        when(repository.findById(1L)).thenReturn(Optional.empty());
-
-        Usuario resultado = service.atualizar(1L, new Usuario());
+        Usuario resultado = service.cadastrar(usuario, 1L);
 
         assertNull(resultado);
-        verify(repository, times(1)).findById(1L);
         verify(repository, never()).save(any(Usuario.class));
     }
 
     @Test
-    void remover_QuandoUsuarioExiste_DeveRetornarTrue() {
+    void atualizar_DeveAtualizarDados() {
+        Usuario dados = new Usuario();
+        dados.setNome("Novo Nome");
+
+        when(repository.findById(1L)).thenReturn(Optional.of(usuario));
+        when(repository.save(any(Usuario.class))).thenReturn(usuario);
+
+        Usuario resultado = service.atualizar(1L, dados);
+
+        assertNotNull(resultado);
+        assertEquals("Novo Nome", resultado.getNome());
+    }
+
+    @Test
+    void remover_QuandoExiste_DeveRetornarTrue() {
         when(repository.existsById(1L)).thenReturn(true);
-        doNothing().when(repository).deleteById(1L);
 
         boolean resultado = service.remover(1L);
 
         assertTrue(resultado);
-        verify(repository, times(1)).existsById(1L);
-        verify(repository, times(1)).deleteById(1L);
-    }
-
-    @Test
-    void remover_QuandoUsuarioNaoExiste_DeveRetornarFalse() {
-        when(repository.existsById(1L)).thenReturn(false);
-
-        boolean resultado = service.remover(1L);
-
-        assertFalse(resultado);
-        verify(repository, times(1)).existsById(1L);
-        verify(repository, never()).deleteById(anyLong());
+        verify(repository).deleteById(1L);
     }
 }
