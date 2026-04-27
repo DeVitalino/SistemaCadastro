@@ -2,11 +2,11 @@ package com.cadastrosimples.sistema.service;
 
 import com.cadastrosimples.sistema.model.Empresa;
 import com.cadastrosimples.sistema.repository.EmpresaRepository;
+import com.cadastrosimples.sistema.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class EmpresaService {
@@ -23,30 +23,26 @@ public class EmpresaService {
     }
 
     public Empresa atualizar(Long id, Empresa dados) {
-        Optional<Empresa> empresaOpt = repository.findById(id);
+        Empresa empresa = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Empresa não encontrada"));
 
-        if (empresaOpt.isPresent()) {
-            Empresa empresa = empresaOpt.get();
-
-            if (dados.getNome() != null) {
-                empresa.setNome(dados.getNome());
-            }
-
-            if (dados.getCnpj() != null) {
-                empresa.setCnpj(dados.getCnpj());
-            }
-
-            return repository.save(empresa);
+        if (dados.getNome() != null) {
+            empresa.setNome(dados.getNome());
         }
 
-        return null;
+        if (dados.getCnpj() != null) {
+            empresa.setCnpj(dados.getCnpj());
+        }
+
+        return repository.save(empresa);
     }
 
     public boolean remover(Long id) {
-        if (repository.existsById(id)) {
-            repository.deleteById(id);
-            return true;
+        if (!repository.existsById(id)) {
+            throw new ResourceNotFoundException("Empresa não encontrada");
         }
-        return false;
+
+        repository.deleteById(id);
+        return true;
     }
 }

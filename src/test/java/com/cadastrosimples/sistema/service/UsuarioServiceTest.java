@@ -4,6 +4,7 @@ import com.cadastrosimples.sistema.model.Usuario;
 import com.cadastrosimples.sistema.model.Empresa;
 import com.cadastrosimples.sistema.repository.UsuarioRepository;
 import com.cadastrosimples.sistema.repository.EmpresaRepository;
+import com.cadastrosimples.sistema.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -72,12 +73,13 @@ public class UsuarioServiceTest {
     }
 
     @Test
-    void cadastrar_QuandoEmpresaNaoExiste_DeveRetornarNull() {
+    void cadastrar_QuandoEmpresaNaoExiste_DeveLancarException() {
         when(empresaRepository.findById(1L)).thenReturn(Optional.empty());
 
-        Usuario resultado = service.cadastrar(usuario, 1L);
+        assertThrows(ResourceNotFoundException.class, () -> {
+            service.cadastrar(usuario, 1L);
+        });
 
-        assertNull(resultado);
         verify(repository, never()).save(any(Usuario.class));
     }
 
@@ -96,6 +98,15 @@ public class UsuarioServiceTest {
     }
 
     @Test
+    void atualizar_QuandoNaoExiste_DeveLancarException() {
+        when(repository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> {
+            service.atualizar(1L, new Usuario());
+        });
+    }
+
+    @Test
     void remover_QuandoExiste_DeveRetornarTrue() {
         when(repository.existsById(1L)).thenReturn(true);
 
@@ -103,5 +114,16 @@ public class UsuarioServiceTest {
 
         assertTrue(resultado);
         verify(repository).deleteById(1L);
+    }
+
+    @Test
+    void remover_QuandoNaoExiste_DeveLancarException() {
+        when(repository.existsById(1L)).thenReturn(false);
+
+        assertThrows(ResourceNotFoundException.class, () -> {
+            service.remover(1L);
+        });
+
+        verify(repository, never()).deleteById(anyLong());
     }
 }

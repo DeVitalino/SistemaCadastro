@@ -28,20 +28,12 @@ public class EmpresaController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Empresa> atualizar(@PathVariable Long id, @RequestBody Empresa dados) {
-        Empresa empresaAtualizada = service.atualizar(id, dados);
-
-        if (empresaAtualizada != null) {
-            return ResponseEntity.ok(empresaAtualizada);
-        }
-
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(service.atualizar(id, dados));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> remover(@PathVariable Long id) {
-        if (service.remover(id)) {
-            return ResponseEntity.ok().build();
-        }
-        return ResponseEntity.notFound().build();
+        service.remover(id);
+        return ResponseEntity.ok().build();
     }
 }

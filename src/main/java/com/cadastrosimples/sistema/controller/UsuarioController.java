@@ -20,11 +20,9 @@ public class UsuarioController {
         return service.listarTodos();
     }
 
-    // 🔥 novo endpoint
     @GetMapping("/empresa/{empresaId}")
     public ResponseEntity<List<Usuario>> listarPorEmpresa(@PathVariable Long empresaId) {
-        List<Usuario> usuarios = service.listarPorEmpresa(empresaId);
-        return ResponseEntity.ok(usuarios);
+        return ResponseEntity.ok(service.listarPorEmpresa(empresaId));
     }
 
     @PostMapping("/empresa/{empresaId}")
@@ -32,13 +30,7 @@ public class UsuarioController {
             @RequestBody Usuario usuario,
             @PathVariable Long empresaId) {
 
-        Usuario novoUsuario = service.cadastrar(usuario, empresaId);
-
-        if (novoUsuario != null) {
-            return ResponseEntity.ok(novoUsuario);
-        }
-
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(service.cadastrar(usuario, empresaId));
     }
 
     @PutMapping("/{id}")
@@ -46,20 +38,12 @@ public class UsuarioController {
             @PathVariable long id,
             @RequestBody Usuario dadosAtualizados) {
 
-        Usuario usuarioAtualizado = service.atualizar(id, dadosAtualizados);
-
-        if (usuarioAtualizado != null) {
-            return ResponseEntity.ok(usuarioAtualizado);
-        }
-
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(service.atualizar(id, dadosAtualizados));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> remover(@PathVariable Long id) {
-        if (service.remover(id)) {
-            return ResponseEntity.ok().build();
-        }
-        return ResponseEntity.notFound().build();
+        service.remover(id);
+        return ResponseEntity.ok().build();
     }
 }
