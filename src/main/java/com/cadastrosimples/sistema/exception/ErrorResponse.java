@@ -5,13 +5,11 @@ import java.time.LocalDateTime;
 
 public class ErrorResponse {
 
-    private int httpStatus;
-    private String errorMessage;
+    private final int httpStatus;
+    private final String errorMessage;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime dateAndTime;
-
-    public ErrorResponse() {}
+    private final LocalDateTime dateAndTime;
 
     public ErrorResponse(int httpStatus, String errorMessage, LocalDateTime dateAndTime) {
         this.httpStatus = httpStatus;
@@ -29,17 +27,5 @@ public class ErrorResponse {
 
     public LocalDateTime getDateAndTime() {
         return dateAndTime;
-    }
-
-    public void setHttpStatus(int httpStatus) {
-        this.httpStatus = httpStatus;
-    }
-
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
-    }
-
-    public void setDateAndTime(LocalDateTime dateAndTime) {
-        this.dateAndTime = dateAndTime;
     }
 }

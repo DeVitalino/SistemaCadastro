@@ -24,6 +24,11 @@ public class UsuarioService {
     }
 
     public List<Usuario> listarPorEmpresa(Long empresaId) {
+
+        if (!empresaRepository.existsById(empresaId)) {
+            throw new ResourceNotFoundException("Empresa não encontrada");
+        }
+
         return repository.findByEmpresaId(empresaId);
     }
 

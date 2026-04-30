@@ -3,6 +3,7 @@ package com.cadastrosimples.sistema.controller;
 import com.cadastrosimples.sistema.model.Usuario;
 import com.cadastrosimples.sistema.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,8 +17,8 @@ public class UsuarioController {
     private UsuarioService service;
 
     @GetMapping
-    public List<Usuario> listar() {
-        return service.listarTodos();
+    public ResponseEntity<List<Usuario>> listar() {
+        return ResponseEntity.ok(service.listarTodos());
     }
 
     @GetMapping("/empresa/{empresaId}")
@@ -30,7 +31,9 @@ public class UsuarioController {
             @RequestBody Usuario usuario,
             @PathVariable Long empresaId) {
 
-        return ResponseEntity.ok(service.cadastrar(usuario, empresaId));
+        Usuario novoUsuario = service.cadastrar(usuario, empresaId);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(novoUsuario);
     }
 
     @PutMapping("/{id}")
@@ -44,6 +47,6 @@ public class UsuarioController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> remover(@PathVariable Long id) {
         service.remover(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build(); // 204
     }
 }
