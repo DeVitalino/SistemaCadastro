@@ -2,6 +2,7 @@ package com.cadastrosimples.sistema.controller;
 
 import com.cadastrosimples.sistema.model.Usuario;
 import com.cadastrosimples.sistema.service.UsuarioService;
+import com.cadastrosimples.sistema.exception.ResourceNotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -12,10 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(UsuarioController.class)
@@ -73,7 +71,7 @@ public class UsuarioControllerTest {
     @Test
     void cadastrar_QuandoEmpresaNaoExiste_DeveRetornar404() throws Exception {
         Mockito.when(service.cadastrar(Mockito.any(), Mockito.eq(1L)))
-                .thenReturn(null);
+                .thenThrow(new ResourceNotFoundException("Empresa não encontrada")); // 🔥 mudou
 
         mockMvc.perform(post("/usuarios/empresa/1")
                         .contentType("application/json")
@@ -83,9 +81,18 @@ public class UsuarioControllerTest {
 
     @Test
     void remover_DeveRetornarOk() throws Exception {
-        Mockito.when(service.remover(1L)).thenReturn(true);
+        Mockito.doNothing().when(service).remover(1L); // 🔥 mudou
 
         mockMvc.perform(delete("/usuarios/1"))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void remover_QuandoNaoExiste_DeveRetornar404() throws Exception {
+        Mockito.doThrow(new ResourceNotFoundException("Usuário não encontrado"))
+                .when(service).remover(1L); // 🔥 novo teste
+
+        mockMvc.perform(delete("/usuarios/1"))
+                .andExpect(status().isNotFound());
     }
 }

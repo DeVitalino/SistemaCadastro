@@ -2,6 +2,7 @@ package com.cadastrosimples.sistema.service;
 
 import com.cadastrosimples.sistema.model.Empresa;
 import com.cadastrosimples.sistema.repository.EmpresaRepository;
+import com.cadastrosimples.sistema.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -77,12 +78,13 @@ public class EmpresaServiceTest {
     }
 
     @Test
-    void atualizar_QuandoEmpresaNaoExiste_DeveRetornarNull() {
+    void atualizar_QuandoEmpresaNaoExiste_DeveLancarException() {
         when(repository.findById(1L)).thenReturn(Optional.empty());
 
-        Empresa resultado = service.atualizar(1L, new Empresa());
+        assertThrows(ResourceNotFoundException.class, () -> {
+            service.atualizar(1L, new Empresa());
+        });
 
-        assertNull(resultado);
         verify(repository, times(1)).findById(1L);
         verify(repository, never()).save(any(Empresa.class));
     }
@@ -100,12 +102,13 @@ public class EmpresaServiceTest {
     }
 
     @Test
-    void remover_QuandoEmpresaNaoExiste_DeveRetornarFalse() {
+    void remover_QuandoEmpresaNaoExiste_DeveLancarException() {
         when(repository.existsById(1L)).thenReturn(false);
 
-        boolean resultado = service.remover(1L);
+        assertThrows(ResourceNotFoundException.class, () -> {
+            service.remover(1L);
+        });
 
-        assertFalse(resultado);
         verify(repository, times(1)).existsById(1L);
         verify(repository, never()).deleteById(anyLong());
     }

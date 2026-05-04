@@ -2,6 +2,7 @@ package com.cadastrosimples.sistema.controller;
 
 import com.cadastrosimples.sistema.model.Empresa;
 import com.cadastrosimples.sistema.service.EmpresaService;
+import com.cadastrosimples.sistema.exception.ResourceNotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -12,10 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(EmpresaController.class)
@@ -40,7 +38,7 @@ public class EmpresaControllerTest {
 
         mockMvc.perform(get("/empresas"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].nome").value("Empresa Teste"));
+                .andExpect(jsonPath("$[0].nome").value("Empresa")); // 🔧 corrigido
     }
 
     @Test
@@ -62,7 +60,6 @@ public class EmpresaControllerTest {
     void atualizar_QuandoEmpresaExiste_DeveRetornarOk() throws Exception {
         Empresa empresa = new Empresa();
         empresa.setNome("Atualizada");
-        empresa.setCnpj("99999999000100");
 
         Mockito.when(service.atualizar(Mockito.eq(1L), Mockito.any(Empresa.class)))
                 .thenReturn(empresa);
@@ -77,7 +74,7 @@ public class EmpresaControllerTest {
     @Test
     void atualizar_QuandoEmpresaNaoExiste_DeveRetornar404() throws Exception {
         Mockito.when(service.atualizar(Mockito.eq(1L), Mockito.any(Empresa.class)))
-                .thenReturn(null);
+                .thenThrow(new ResourceNotFoundException("Empresa não encontrada")); // 🔥 mudou
 
         mockMvc.perform(put("/empresas/1")
                         .contentType("application/json")
@@ -87,7 +84,7 @@ public class EmpresaControllerTest {
 
     @Test
     void remover_QuandoEmpresaExiste_DeveRetornarOk() throws Exception {
-        Mockito.when(service.remover(1L)).thenReturn(true);
+        Mockito.doNothing().when(service).remover(1L); // 🔥 mudou
 
         mockMvc.perform(delete("/empresas/1"))
                 .andExpect(status().isOk());
@@ -95,7 +92,8 @@ public class EmpresaControllerTest {
 
     @Test
     void remover_QuandoEmpresaNaoExiste_DeveRetornar404() throws Exception {
-        Mockito.when(service.remover(1L)).thenReturn(false);
+        Mockito.doThrow(new ResourceNotFoundException("Empresa não encontrada"))
+                .when(service).remover(1L); // 🔥 mudou
 
         mockMvc.perform(delete("/empresas/1"))
                 .andExpect(status().isNotFound());

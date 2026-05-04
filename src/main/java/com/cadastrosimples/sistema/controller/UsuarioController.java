@@ -3,6 +3,7 @@ package com.cadastrosimples.sistema.controller;
 import com.cadastrosimples.sistema.model.Usuario;
 import com.cadastrosimples.sistema.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,15 +17,13 @@ public class UsuarioController {
     private UsuarioService service;
 
     @GetMapping
-    public List<Usuario> listar() {
-        return service.listarTodos();
+    public ResponseEntity<List<Usuario>> listar() {
+        return ResponseEntity.ok(service.listarTodos());
     }
 
-    // 🔥 novo endpoint
     @GetMapping("/empresa/{empresaId}")
     public ResponseEntity<List<Usuario>> listarPorEmpresa(@PathVariable Long empresaId) {
-        List<Usuario> usuarios = service.listarPorEmpresa(empresaId);
-        return ResponseEntity.ok(usuarios);
+        return ResponseEntity.ok(service.listarPorEmpresa(empresaId));
     }
 
     @PostMapping("/empresa/{empresaId}")
@@ -34,11 +33,7 @@ public class UsuarioController {
 
         Usuario novoUsuario = service.cadastrar(usuario, empresaId);
 
-        if (novoUsuario != null) {
-            return ResponseEntity.ok(novoUsuario);
-        }
-
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(novoUsuario);
     }
 
     @PutMapping("/{id}")
@@ -46,20 +41,12 @@ public class UsuarioController {
             @PathVariable long id,
             @RequestBody Usuario dadosAtualizados) {
 
-        Usuario usuarioAtualizado = service.atualizar(id, dadosAtualizados);
-
-        if (usuarioAtualizado != null) {
-            return ResponseEntity.ok(usuarioAtualizado);
-        }
-
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(service.atualizar(id, dadosAtualizados));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> remover(@PathVariable Long id) {
-        if (service.remover(id)) {
-            return ResponseEntity.ok().build();
-        }
-        return ResponseEntity.notFound().build();
+        service.remover(id);
+        return ResponseEntity.noContent().build(); // 204
     }
 }
